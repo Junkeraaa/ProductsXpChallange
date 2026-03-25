@@ -4,17 +4,23 @@ import { ProductRepository } from '../repositories/ProductRepository';
 export class ProductService {
     private repository: ProductRepository;
 
-    constructor() {
-        this.repository = new ProductRepository();
+    constructor(repository?: ProductRepository) {
+        this.repository = repository ?? new ProductRepository();
     }
 
 
     public create(data: NewProduct): Product {
+        if (!data.name || data.name.trim() === '') {
+            throw new Error("O nome do produto é obrigatório.");
+        }
+        if (!data.description || data.description.trim() === '') {
+            throw new Error("A descrição do produto é obrigatória.");
+        }
         if (data.price <= 0) {
             throw new Error("O preço do produto deve ser maior que zero.");
         }
         if (data.stock < 0) {
-             throw new Error("O estoque não pode ser negativo.");
+            throw new Error("O estoque não pode ser negativo.");
         }
 
         return this.repository.create(data);
@@ -36,6 +42,12 @@ export class ProductService {
     }
 
     public update(id: string, data: Partial<Product>): Product | undefined {
+        if (data.name !== undefined && !data.name?.trim()) {
+            throw new Error("O nome do produto não pode ser vazio.");
+        }
+        if (data.description !== undefined && !data.description?.trim()) {
+            throw new Error("A descrição do produto não pode ser vazia.");
+        }
         if (data.price !== undefined && data.price <= 0) {
             throw new Error("O preço atualizado deve ser maior que zero.");
         }
